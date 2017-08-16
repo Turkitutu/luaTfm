@@ -1,8 +1,11 @@
-admins={Turkitutu=true}
+admin = "Turkitutu"
+admins={}
+
 
 tfm.exec.disableAfkDeath(true)
 tfm.exec.disableAutoNewGame(true)
 tfm.exec.disableAutoShaman(true)
+admins[admin] = true
 t = 0
 time_n_g = 3
 select_t = 0
@@ -13,16 +16,24 @@ competitor = ""
 t_m_text = ""
 challenge1 = nil
 challenge2 = nil
+players={}
+lastPlayer=""
+mice = 0
+st_p = false
 
 function rand_p(type)
 	pl={}
-	for n in pairs(tfm.get.room.playerList) do
+	for i=1,#players do
 		if type == 1 then
-			table.insert(pl,n)
-		elseif type == 2 then
-			if n ~= Host then
-				table.insert(pl,n)
+			if players[i] ~= lastPlayer then
+				table.insert(pl,players[i])
 			end
+		elseif type == 2 then
+			if players[i] ~= Host then
+				table.insert(pl,players[i])
+			end
+		elseif type == 3 then
+			table.insert(pl,players[i])
 		end
 	end
 	return pl[math.random(#pl)]
@@ -66,13 +77,13 @@ random_cha1 = {
 }
 
 random_cha2 = {
-	"قم بالزواج بإحدى اللاعبين الموجودين بالقرية","20 مرة "..rand_p(1).." قبل",
+	"قم بالزواج بإحدى اللاعبين الموجودين بالقرية","20 مرة %s قبل",
 	"قم بتكرار الجملة التالية 10 مرات في الفانيلا  : <br>انا شخص غبي لا اعرف شيئاً","إرتدي ملابس الجنـس المختلف لمدة 20 جولة بالقرية",
 	"قبل شخصًا من الجـنس المختلف 5 مرات أمام الجميع","إعد الإتصال باللعبة 5 مرات",
 	"أخلع ملابسك لمدة 3 جولات","أدخل الى محادثة المساعدين و أزعج <br>اي مساعد عربي و عندما يرد عليك<br> اخبره انه تحدي",
 	"اخبر شخص عشوائي من الفيلاج اكرهك","اجمل 5 قطع جبن بالرسينغ",
 	"انشئ موضوع بالمقهى و اكتب به : احب الدجاج","انتحر 25 مرة",
-	"مرتين "..rand_p(1).." نفذ مايقوله لك",""..rand_p(1).." تزوج",
+	"مرتين %s نفذ مايقوله لك","%s تزوج",
 	"قم برمي 10 دجاجات و 10 حيوان اخر بالروم","قم برمي قبر 10 مرات",
 	"قم برمي 10 دجاجات و 10 حيوان اخر بالروم","اذهب الى القرية وابقى بها مدة 3 دقائق",
 	"قم برمي 10 دجاجات و 10 حيوان اخر بالروم","قم برمي قبر 10 مرات",
@@ -172,8 +183,8 @@ function Answer_popup_t(n,id,answer)
 				challenge1 = random_cha1[aa].a
 				challenge2 = random_cha1[aa].b
 			elseif cha == 2 then
-				challenge1 = random_cha2[math.random(#random_cha2)]
-				challenge2 = random_cha2[math.random(#random_cha2)]
+				challenge1 = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
+				challenge2 = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
 			end
 			popup_l_a(1)
 			t_m_t(nil,function() area_acn("...يتم وضع إختيارات عشوائياً") popup_l_a(1) 	for i,ii in pairs({1,2,17,18}) do ui.removeTextArea(ii) end  end,3)
@@ -224,6 +235,15 @@ function eventLoop(t1,t2)
 	end
 	tfm.exec.movePlayer(Host,62, 200,offset,0,0,offset)
 	tfm.exec.movePlayer(competitor,742, 200,offset,0,0,offset)
+	
+	if st_p then
+		if mice >= 2 then
+			eventNewGame()
+			st_p = false
+		else
+			st_p = true
+		end
+	end
 end
 
 function se_co()
@@ -267,6 +287,7 @@ function eventPopupAnswer(id,name,answer)
 end
 
 function eventNewGame()
+       lastPlayer=Host
 	tfm.exec.killPlayer (competitor)
 	tfm.exec.killPlayer (Host)
 	for i=20,41 do ui.removeTextArea(i) end 
@@ -277,7 +298,13 @@ function eventNewGame()
 	competitor = ""
 	challenge1 = nil
 	challenge2 = nil
-	t_m_t(nil,function() t_m_t("سيتم إختيار المضيف في غضون",function() Host=rand_p(2) area_acn("الأن بإختيار المنافس <j>"..Host.."</j> يقوم المضيف") popup_t(Host,1,"تحديد لاعب","حدد طريقة الإختيار","عشوائياً","يدوياً") end,5) end,5)
+	if mice >= 2 then
+               st_p = false
+		t_m_t(nil,function() t_m_t("سيتم إختيار المضيف في غضون",function() Host=rand_p(1) area_acn("الأن بإختيار المنافس <j>"..Host.."</j> يقوم المضيف") popup_t(Host,1,"تحديد لاعب","حدد طريقة الإختيار","عشوائياً","يدوياً") end,5) end,5)
+	else
+              st_p = true
+		area_acn("1/2 جاري انتظار اللاعبين")
+	end
 end
 
 function eventChatCommand(n,c)
@@ -294,16 +321,34 @@ function eventChatCommand(n,c)
 		t_m_text=""
 		time_n_g=0
 		area_acn("تم تخطي اللعبة")
-		t_m_t(nil,function() eventNewGame() end,5)
+               tfm.exec.chatMessage("تم تخطي اللعبة <vp>:[لو خيروك]</vp>")
+		t_m_t(nil,function() eventNewGame() end,1)
+	elseif cmd == "admin" and  admin ==  n then
+              admins[args[2]] = true
+	elseif cmd == "unadmin" and  admin == n then
+              admins[args[2]] = false
 	end
 end
 
 function eventPlayerDied(n)
-    tfm.exec.respawnPlayer (n)
+	tfm.exec.respawnPlayer (n)
 end
 
 function eventNewPlayer(n)
-    tfm.exec.respawnPlayer (n)
+	tfm.exec.respawnPlayer (n)
+	table.insert(players,n)
+	mice = mice +1
+end
+
+table.foreach(tfm.get.room.playerList,eventNewPlayer)
+
+function eventPlayerLeft(n)
+	for i=1,#players do
+		if players[i] == n then
+			table.remove(players,i)
+		end
+	end
+	mice = mice -1
 end
 
 function eventPlayerWon(n,timeElapsed,timeElapsedSinceRespawn)
