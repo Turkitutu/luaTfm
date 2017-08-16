@@ -112,7 +112,7 @@ end
 
 popup_list_p = function(name)
 	local list = "\n"
-	for n in pairs(tfm.get.room.playerList) do if n ~= Host then list = list.."<a href='event:se_"..n.."'>"..n.."</a>\n" end end
+	for i=1,#players do if players[i] ~= Host then list = list.."<a href='event:se_"..players[i].."'>"..players[i].."</a>\n" end end
 	ui.addTextArea(14, "<p align='center'>"..list.."</p>", name, 342, 78, 116, 243, 0x142b2e, 0x8a583c, 1, true)
 	ui.addTextArea(15, "", name, 339, 60, 122, 15, 0x3f2b1d, 0x1f1813, 1, true)
 	ui.addTextArea(16, "<p align='center'>تحديد لاعب</p>", name, 337, 59, 127, 21, 0x324650, 0x000000, 0, true)
