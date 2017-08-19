@@ -92,7 +92,7 @@ random_cha2 = {
 
 
 area_acn = function(text)
-	ui.addTextArea(1, "", n, 200, 15, 400, 30, 0x142b2e, 0x8a583c, 1, true)-- كفو شكرا لول
+	ui.addTextArea(1, "", n, 200, 15, 400, 30, 0x142b2e, 0x8a583c, 1, true)
 	ui.addTextArea(2, "<p align='center'>"..text:gsub("<blue>","<font color='#007CFF'>"):gsub("</blue>","</font>").."</p>", n, 200, 25, 400, 30, 0x142b2e, 0x8a583c, 0, true)
 end
 
@@ -112,7 +112,7 @@ end
 
 popup_list_p = function(name)
 	local list = "\n"
-	for i=1,#players do if players[i] ~= Host then list = list.."<a href='event:se_"..players[i].."'>"..players[i].."</a>\n" end end
+	for n in pairs(tfm.get.room.playerList) do if n ~= Host then list = list.."<a href='event:se_"..n.."'>"..n.."</a>\n" end end
 	ui.addTextArea(14, "<p align='center'>"..list.."</p>", name, 342, 78, 116, 243, 0x142b2e, 0x8a583c, 1, true)
 	ui.addTextArea(15, "", name, 339, 60, 122, 15, 0x3f2b1d, 0x1f1813, 1, true)
 	ui.addTextArea(16, "<p align='center'>تحديد لاعب</p>", name, 337, 59, 127, 21, 0x324650, 0x000000, 0, true)
@@ -184,7 +184,11 @@ function Answer_popup_t(n,id,answer)
 				challenge2 = random_cha1[aa].b
 			elseif cha == 2 then
 				challenge1 = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
-				challenge2 = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
+				ra = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
+				while (challenge1 == ra) do
+					ra = random_cha2[math.random(#random_cha2)]:format(rand_p(3))
+				end
+				challenge2 = ra
 			end
 			popup_l_a(1)
 			t_m_t(nil,function() area_acn("...يتم وضع إختيارات عشوائياً") popup_l_a(1) 	for i,ii in pairs({1,2,17,18}) do ui.removeTextArea(ii) end  end,3)
@@ -349,6 +353,16 @@ function eventPlayerLeft(n)
 		end
 	end
 	mice = mice -1
+	if n == Host or n == competitor then
+		for i=20,41 do ui.removeTextArea(i) end 
+		for i,ii in pairs({1,2,17,18}) do ui.removeTextArea(ii) end
+		bool_n_g=false
+		t_m_text=""
+		time_n_g=0
+		t_m_t(nil,function() eventNewGame() end,1)
+		area_acn("الغرفة "..n.." تم تخطي اللعبة بسبب مغادرة")
+		tfm.exec.chatMessage("الغرفة "..n.." تم تخطي اللعبة بسبب مغادرة <vp>:[لو خيروك]</vp>")
+	end
 end
 
 function eventPlayerWon(n,timeElapsed,timeElapsedSinceRespawn)
