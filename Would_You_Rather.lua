@@ -123,7 +123,7 @@ addPopup = function(n,id,text)
 	ui.addTextArea(17, "", n, 297, 90, 206, 18, 0x3f2b1d, 0x1f1813, 1, true)
 	ui.addTextArea(18, "<p align='center'>"..text.."</p>", n, 297, 90, 206, 25, 0x3f2b1d, 0x1f1813, 0, true)
 end
--- لم اجد المشكلة
+
 popup_l_a = function(type)
 	for i=20,41 do ui.removeTextArea(i) end
 	for n in pairs(tfm.get.room.playerList)do
